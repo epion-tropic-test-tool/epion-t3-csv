@@ -4,4 +4,7 @@ pluginManagement {
         id "com.jfrog.bintray" version "1.8.4"
     }
 }
-rootProject.name = 'epion-t3-custom-template'
+rootProject.name = 'epion-t3-csv'
+
+include ':epion-t3-core-dev'
+project(':epion-t3-core-dev').projectDir = new File('../epion-t3-core')

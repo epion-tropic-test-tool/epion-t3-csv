@@ -8,52 +8,140 @@ languages:
 # カスタム機能定義
 #####################################
 info:
-  name: custom
-  customPackage: com.epion_t3.custom
+  name: csv
+  customPackage: com.epion_t3.csv
   summary:
     - lang: ja_JP
-      contents: "独自にカスタムした機能を提供します。"
+      contents: "CSVを扱う機能を提供します。"
   description:
     - lang: ja_JP
-      contents: "独自にカスタムした機能を提供します。"
+      contents: "CSVを扱う機能を提供します。"
+#####################################
+# 設定定義
+#####################################
+configurations:
+  ####################################
+  # FileFormatConfiguration
+  ####################################
+  - id: FileFormatConfiguration
+    summary:
+      - lang: ja_JP
+        contents: "CSV/TSVファイルのフォーマットを定義するための設定定義です。"
+    description:
+      - order: 1
+        summary:
+          - lang: ja_JP
+            contents: "CSV/TSVファイルのフォーマットを定義するための設定定義です。"
+      - order: 2
+        summary:
+          - lang: ja_JP
+            contents: "本設定定義は、「Commons CSV」の「CSVFormat」をベースとしています。"
+    structure:
+      - order: 1
+        name: configuration
+        required: true
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "「FileFormatConfiguration」固定"
+      - order: 2
+        name: id
+        required: true
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "設定のID"
+      - order: 3
+        name: summary
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "設定の概要（任意）"
+      - order: 4
+        name: description
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "設定の詳細（任意）"
+      - order: 5
+        name: "delimiter"
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "要素のデリミタ文字を指定します。省略した場合、カンマ（,）が選択されます。"
+      - order: 6
+        name: "escape"
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "エスケープに使用する文字を指定します。"
+      - order: 7
+        name: "ignoreEmptyLines"
+        required: false
+        type: boolean
+        summary:
+          - lang: ja_JP
+            contents: "空行をSKIPするかを真偽値で指定します。true の場合SKIPします。"
+      - order: 8
+        name: "quote"
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "要素の囲い文字を指定します。"
+      - order: 9
+        name: "recordSeparator"
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "レコード区切り文字を指定します。改行コードの指定となりますが、「CRLF」もしくは「LF」のいずれかを指定して下さい。"
+      - order: 10
+        name: "trim"
+        required: false
+        type: boolean
+        summary:
+          - lang: ja_JP
+            contents: "要素の前後の空白を除去するかを真偽値で指定します。true の場合Trim処理を行います。"
 #####################################
 # コマンド定義
 #####################################
 commands:
   ##########################
-  # ExcelBindVariables
+  # AssertCsvData
   ##########################
-  - id: ExcelBindVariables
-    evidenceCommand: true
+  - id: AssertCsvData
+    evidenceCommand: false
+    assertCommand: true
     summary:
       - lang: ja_JP
-        contents: "Excelファイルに対して変数のバインドを行います。"
+        contents: "CSVの値を確認します。"
     testItem:
       - order: 1
         summary:
           - lang: ja_JP
-            contents: Excel「${target}」に対して変数をバインドします。
+            contents:
     function:
       - order: 1
         summary:
           - lang: ja_JP
-            contents: "Excelの全てのシートに対して変数をバインドします。"
+            contents: "CSVファイル同士を比較し、値の確認を行います。"
       - order: 2
         summary:
           - lang: ja_JP
-            contents: "変数の参照記法「${スコープ.変数名}」が記載してあるセルの値を置換します。（部分置換を行えます）"
+            contents: "結果値のCSVファイルは、エビデンスとして取得済である必要があります。"
       - order: 3
         summary:
           - lang: ja_JP
-            contents: "セルの型が「文字列」である場合にのみ置換します。"
+            contents: "ファイルフォーマットの指定及び無視カラムインデックスの指定である程度柔軟なアサーションが行えます。"
       - order: 4
         summary:
           - lang: ja_JP
-            contents: "置換後のExcelファイルは、エビデンスとして保存します。"
-      - order: 5
-        summary:
-          - lang: ja_JP
-            contents: "エビデンスファイル名は、「BindVariables_ + 元ファイル名」となります。"
+            contents: "ファイルフォーマットの指定次第でTSVにも対応が可能となっています。"
     structure:
       - order: 1
         name: id
@@ -68,7 +156,7 @@ commands:
         type: string
         summary:
           - lang: ja_JP
-            contents: 「ExcelBindVariables」固定
+            contents: 「AssertCSVData」固定
       - order: 3
         name: summary
         required: false
@@ -83,14 +171,60 @@ commands:
         summary:
           - lang: ja_JP
             contents: コマンドの詳細（任意）
-      - order: 6
-        name: target
+      - order: 5
+        name: fileFormatConfigRef
         required: true
         type: string
         summary:
           - lang: ja_JP
-            contents: "対象とするExcelの相対パス"
+            contents: "ファイルフォーマット定義の参照ID # (1)"
+        description:
+          - lang: ja_JP
+            contents: "ファイルフォーマットの設定を行っている `Configuration` の参照IDを指定します。"
+      - order: 6
+        name: expectedDataSetPath
+        required: true
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "期待値CSV/TSVの相対パス # (2)"
+        description:
+          - lang: ja_JP
+            contents: "期待値を定義したCSV/TSVファイルへの相対パス。基底ディレクトリはパス解決モードで指定された方式に従います。"
+      - order: 7
+        name: actualFlowId
+        required: true
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "結果値を取得したFlowのFlowIDを指定 # (3)"
+        description:
+          - lang: ja_JP
+            contents: "結果値を取得したFlowIDを指定。"
+      - order: 8
+        name: ignoreIndexes
+        required: false
+        type: array
+        summary:
+          - lang: ja_JP
+            contents: "対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。"
 #####################################
 # メッセージ定義
 #####################################
 messages:
+  - id: "com.epion_t3.csv.err.0001"
+    message:
+      - lang: ja_JP
+        contents: "期待値ファイルが見つかりません. Path: {0}"
+  - id: "com.epion_t3.csv.err.0002"
+    message:
+      - lang: ja_JP
+        contents: "期待値ファイルのCSV/TSV読み込みに失敗しました. Path: {0}"
+  - id: "com.epion_t3.csv.err.0003"
+    message:
+      - lang: ja_JP
+        contents: "期待値ファイルのパスは必須です."
+  - id: "com.epion_t3.csv.err.0004"
+    message:
+      - lang: ja_JP
+        contents: "結果値を取得したFlowIDは必須です."
