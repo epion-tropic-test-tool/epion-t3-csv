@@ -6,7 +6,6 @@ import com.epion_t3.core.common.type.AssertStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,9 @@ public class AssertCsvDataResult extends AssertCommandResult {
      * シリアルバージョンUID.
      */
     private static final long serialVersionUID = 1L;
+
+    /** . */
+    private String name = "AssertCsvDataResult";
 
     /**
      * レコード数アサート.
@@ -65,6 +67,20 @@ public class AssertCsvDataResult extends AssertCommandResult {
 
     public void addNgRowCount() {
         ngRowCount++;
+    }
+
+    /**
+     * 行アサートを追加.
+     * 
+     * @param row {@link AssertResultRow}
+     */
+    public void addRow(AssertResultRow row) {
+        if (row.getRowAssert() == AssertStatus.NG) {
+            addNgRowCount();
+        } else {
+            addOkRowCount();
+        }
+        rows.add(row);
     }
 
 }

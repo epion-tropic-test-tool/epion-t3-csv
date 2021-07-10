@@ -106,7 +106,14 @@ configurations:
         type: boolean
         summary:
           - lang: ja_JP
-            contents: "要素の前後の空白を除去するかを真偽値で指定します。true の場合Trim処理を行います。"
+            contents: "要素の前後の空白を除去するかを真偽値で指定します。true の場合Trim処理を行います。デフォルトでは falseと扱います。"
+      - order: 11
+        name: "firstRecordIsHeader"
+        required: false
+        type: boolean
+        summary:
+          - lang: ja_JP
+            contents: "1レコード目がヘッダを表すかどうかを真偽値で指定します。 trueの場合、ヘッダ行を比較SKIPします。デフォルトでは falseと扱います。"
 #####################################
 # コマンド定義
 #####################################
@@ -228,3 +235,7 @@ messages:
     message:
       - lang: ja_JP
         contents: "結果値を取得したFlowIDは必須です."
+  - id: "com.epion_t3.csv.err.0005"
+    message:
+      - lang: ja_JP
+        contents: "指定されたエンコーディングは不正です. エンコーディング : {0}"

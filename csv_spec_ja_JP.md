@@ -114,3 +114,4 @@ commands :
 |com.epion_t3.csv.err.0001|期待値ファイルが見つかりません. Path: {0}|
 |com.epion_t3.csv.err.0004|結果値を取得したFlowIDは必須です.|
 |com.epion_t3.csv.err.0003|期待値ファイルのパスは必須です.|
+|com.epion_t3.csv.err.0005|指定されたエンコーディングは不正です. エンコーディング : {0}|

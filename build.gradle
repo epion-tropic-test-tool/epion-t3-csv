@@ -13,11 +13,11 @@ plugins {
 ext {
     // バージョン定義
     versionMajor = 0
-    versionMinor = 0
-    versionPatch = 1
+    versionMinor = 1
+    versionPatch = 0
 
     // カスタムパッケージ名
-    customPackageName = 'custom'
+    customPackageName = 'csv'
 
     // アーティファクト関連
     group 'com.epion_t3'
@@ -32,11 +32,7 @@ ext {
 }
 
 repositories {
-    maven {
-        url "https://dl.bintray.com/epion-tropic-test-tool/maven"
-    }
     mavenCentral()
-    jcenter()
 }
 
 configurations {
@@ -46,7 +42,7 @@ configurations {
 dependencies {
 
     // Core Library
-    // api "com.epion_t3:epion-t3-core:0.0.5"
+    //api "com.epion-t3:epion-t3-core:0.0.5"
     api project(":epion-t3-core-dev")
 
     // Commons

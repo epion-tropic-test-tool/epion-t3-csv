@@ -38,17 +38,46 @@ public class AssertResultRow implements Serializable {
      */
     private Integer okColumnCount = 0;
 
-    public void addOkColumnCount() {
-        okColumnCount++;
-    }
-
     /**
      * NGカラム数.
      */
     private Integer ngColumnCount = 0;
 
-    public void addNgColumnCount() {
+    /**
+     * AssertResultColumnを追加.
+     *
+     * @param column {@link AssertResultColumn}
+     */
+    public void addColumns(AssertResultColumn column) {
+        columns.add(column);
+        if (AssertStatus.NG == column.getStatus()) {
+            addNgColumnCount();
+        } else if (AssertStatus.OK == column.getStatus()) {
+            addOkColumnCount();
+        }
+    }
+
+    /**
+     * NGカラムをインクリメント.
+     */
+    private void addNgColumnCount() {
         ngColumnCount++;
+    }
+
+    /**
+     * OKカラムをインクリメント.
+     */
+    private void addOkColumnCount() {
+        okColumnCount++;
+    }
+
+    /**
+     * NGカラムが存在するか.
+     * 
+     * @return true:存在する、false:存在しない
+     */
+    public boolean hasNgColumn() {
+        return ngColumnCount > 0;
     }
 
 }

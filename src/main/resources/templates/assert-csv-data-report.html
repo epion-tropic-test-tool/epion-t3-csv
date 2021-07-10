@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>ETTT-Report</title>
+
+    <th:block th:if="${webAssetPath}">
+        <link rel="stylesheet" th:href="${#strings.concat(webAssetPath, 'bootstrap.min.css')}">
+    </th:block>
+    <th:block th:unless="${webAssetPath}">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css"
+              integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+    </th:block>
+
+    <style type="text/css">
+        .show {
+            display: ;
+        }
+        .hide {
+            display: none;
+        }
+        .ignore {
+            background: #AEB6BF;
+        }
+        body {
+            font-size: 0.8rem;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+    </style>
+    <script type="text/javascript">
+        function toggleRowSummary(buttonId, id) {
+            var button = document.getElementById(buttonId);
+            var isShowOthers = (' ' + button.className + ' ').indexOf(' showOthers ') > -1;
+            var tbody = document.getElementById(id);
+            var trs       = tbody.rows;
+            var startRow = 0;
+            for (var i=startRow; i < trs.length; i++) {
+                var tr = trs[i];
+                var isNoExistsNgRow = (' ' + tr.className + ' ').indexOf(' noExistsNgRow ') > -1;
+                if (isNoExistsNgRow) {
+                    if (isShowOthers) {
+                        tr.className = "noExistsNgRow hide";
+                    } else {
+                        tr.className = "noExistsNgRow show";
+                    }
+                } else {
+                    var status = tr.cells[1].innerText;
+                    if (status == 'OK') {
+                        if (isShowOthers) {
+                            tr.className = "show";
+                        } else {
+                            tr.className = "hide";
+                        }
+                    }
+                }
+            }
+            if (isShowOthers) {
+                button.innerText = 'Show Hide Only';
+                button.className = button.className.replace(/showOthers/g,'');
+            } else {
+                button.innerText = 'Show Others';
+                button.className = button.className + "showOthers";
+            }
+        }
+        function toggleRowDetail(buttonId, id) {
+            var button = document.getElementById(buttonId);
+            var isShowOthers = (' ' + button.className + ' ').indexOf(' showOthers ') > -1;
+            var tbody = document.getElementById(id);
+            var trs       = tbody.rows;
+            var startRow = 0;
+            for (var i=startRow; i < trs.length; i++) {
+                var tr = trs[i];
+                var isNoExistsNgColumn = (' ' + tr.className + ' ').indexOf(' noExistsNgColumn ') > -1;
+                if (isNoExistsNgColumn) {
+                    if (isShowOthers) {
+                        tr.className = "noExistsNgColumn hide";
+                    } else {
+                        tr.className = "noExistsNgColumn show";
+                    }
+                } else {
+                    var status = tr.cells[3].innerText;
+                    var ignore = tr.cells[4].innerText;
+                    if (status == 'OK' || ignore == 'Yes' ) {
+                        if (isShowOthers) {
+                            tr.className = "show";
+                        } else {
+                            tr.className = "hide";
+                        }
+                    }
+                }
+            }
+            if (isShowOthers) {
+                button.innerText = 'Show Hide Only';
+                button.className = button.className.replace(/showOthers/g,'');
+            } else {
+                button.innerText = 'Show Others';
+                button.className = button.className + "showOthers";
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <span class="navbar-brand col-md-11">ETTT-Reports</span>
+    <span style="color:#eee">Version:0.1.0</span>
+</nav>
+
+<main role="main" class="container">
+
+    <nav class="breadcrumb">
+        <a class="breadcrumb-item" href="#" th:href="'../../report.html'">All</a>
+        <a class="breadcrumb-item" href="#" th:href="'../scenario_report.html'">Scenario</a>
+        <a class="breadcrumb-item" href="#">AssertCSVData&nbsp;Reports</a>
+    </nav>
+
+    <section class="row">
+        <div class="col-md-12">
+            <h2>Basic&nbsp;Assert</h2>
+            <table class="table table-sm table-bordered">
+                <thead class="bg-dark" style="color:white">
+                <tr>
+                    <th scope="col">ColumnNum</th>
+                    <th scope="col">RecordNum</th>
+                    <th scope="col">Row</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:text="${result.columnNumAssert}"
+                            th:class="${result.columnNumAssert.getCssClass()}"
+                            class="table-success">OK
+                        </td>
+                        <td th:text="${result.recordNumAssert}"
+                            th:class="${result.recordNumAssert.getCssClass()}"
+                            class="table-success">OK
+                        </td>
+                        <td th:text="${result.rowAssert}"
+                            th:class="${result.rowAssert.getCssClass()}"
+                            class="table-info">RUNNING
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="row">
+        <div class="col-md-12">
+            <h2>Assert&nbsp;Detail</h2>
+            <h6>Rows&nbsp;:&nbsp;
+            Total&nbsp;:&nbsp;<span th:text="${result.rows.size()}">1</span>
+            &nbsp;&nbsp;OK&nbsp;:&nbsp;<span th:text="${result.okRowCount}">1</span>
+            &nbsp;&nbsp;NG&nbsp;:&nbsp;<span th:text="${result.ngRowCount}">1</span>&nbsp;&nbsp;
+            <button class="btn btn-sm showOthers"
+                    th:id="${#strings.concat(result.name, '-toggleButton')}"
+                    th:attr="onclick='toggleRowSummary(\'' +${#strings.concat(result.name, '-toggleButton')} + '\',\'' + ${#strings.concat(result.name, '-tbody')} + '\')'">
+                Show&nbsp;Others
+            </button>
+            </h6>
+            <table class="table table-sm table-bordered">
+                <thead class="bg-dark" style="color:white">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody th:id="${#strings.concat(result.name, '-tbody')}">
+                <th:block th:each="row,rowStat : ${result.rows}">
+                    <th:block th:if="${row.rowAssert.name == 'OK'}">
+                        <tr th:class="hide">
+                            <td>
+                                <a th:href="${#strings.concat('#', result.name, '-', rowStat.count)}"
+                                   th:text="${#strings.concat('#', rowStat.count)}">#1</a>
+                            </td>
+                            <td th:text="${row.rowAssert}" th:class="${row.rowAssert.getCssClass()}">OK</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:if="${row.rowAssert.name != 'OK'}">
+                        <tr th:class="show">
+                            <td>
+                                <a th:href="${#strings.concat('#', result.name, '-', rowStat.count)}"
+                                   th:text="${#strings.concat('#', rowStat.count)}">#1</a>
+                            </td>
+                            <td th:text="${row.rowAssert}" th:class="${row.rowAssert.getCssClass()}">OK</td>
+                        </tr>
+                    </th:block>
+                </th:block>
+                <th:block th:if="${result.ngRowCount == 0}">
+                    <tr class="noExistsNgRow">
+                        <td colspan="2">No Exists NG Row.</td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+
+            <th:block th:each="row,rowStat : ${result.rows}">
+                <h4 style="float:left;margin-right:20px;" th:text="${#strings.concat('#', rowStat.count)}"
+                    th:id="${#strings.concat(result.name, '-', rowStat.count)}">#1</h4>
+                <button class="btn btn-sm showOthers"
+                        th:id="${#strings.concat(result.name, '-', rowStat.count, '-toggleButton')}"
+                        th:attr="onclick='toggleRowDetail(\'' +${#strings.concat(result.name, '-', rowStat.count, '-toggleButton')} + '\',\'' + ${#strings.concat(result.name, '-', rowStat.count, '-tbody')} + '\')'">
+                    Show&nbsp;Others
+                </button>
+                <table class="table table-sm table-bordered">
+                    <thead class="bg-dark" style="color:white">
+                    <tr>
+                        <th scope="col">Index</th>
+                        <th scope="col">Expected</th>
+                        <th scope="col">Actual</th>
+                        <th scope="col">Result</th>
+                        <th scope="col">Ignore</th>
+                    </tr>
+                    </thead>
+                    <tbody th:id="${#strings.concat(result.name, '-', rowStat.count, '-tbody')}">
+                    <th:block th:each="column,columnStat : ${row.columns}">
+                        <th:block th:if="${!column.ignore && column.status.name == 'OK'}">
+                            <tr th:class="hide">
+                                <td th:text="${column.index}">Column&nbsp;Index</td>
+                                <td th:text="${column.expected}">Expected&nbsp;Value</td>
+                                <td th:text="${column.actual}">Actual&nbsp;Value</td>
+                                <td th:text="${column.status}"
+                                    th:class="${column.status.getCssClass()}">OK
+                                </td>
+                                <td>-</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:if="${!column.ignore && column.status.name == 'NG'}">
+                            <tr th:class="show">
+                                <td th:text="${column.index}">Column&nbsp;Index</td>
+                                <td th:text="${column.expected}">Expected&nbsp;Value</td>
+                                <td th:text="${column.actual}">Actual&nbsp;Value</td>
+                                <td th:text="${column.status}"
+                                    th:class="${column.status.getCssClass()}">OK
+                                </td>
+                                <td>-</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:if="${column.ignore}">
+                            <tr th:class="hide">
+                                <td class="ignore" th:text="${column.index}">Column&nbsp;Index</td>
+                                <td class="ignore" th:text="${column.expected}">Expected&nbsp;Value</td>
+                                <td class="ignore" th:text="${column.actual}">Actual&nbsp;Value</td>
+                                <td class="ignore" th:text="${column.status}">OK</td>
+                                <td class="ignore">Yes</td>
+                            </tr>
+                        </th:block>
+                    </th:block>
+                    <th:block th:if="${row.ngColumnCount == 0}">
+                        <tr class="noExistsNgColumn">
+                            <td colspan="5">No Exists NG Column.</td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </th:block>
+        </div>
+    </section>
+
+</main>
+
+<th:block th:if="${webAssetPath}">
+    <script th:src="${#strings.concat(webAssetPath, 'jquery-3.3.1.slim.min.js')}"></script>
+    <script th:src="${#strings.concat(webAssetPath, 'popper.min.js')}"></script>
+    <script th:src="${#strings.concat(webAssetPath, 'bootstrap.min.js')}"></script>
+</th:block>
+<th:block th:unless="${webAssetPath}">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"
+            integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
+            crossorigin="anonymous"></script>
+</body>
+</html>

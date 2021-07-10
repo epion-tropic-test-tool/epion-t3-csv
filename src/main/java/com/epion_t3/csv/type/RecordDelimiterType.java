@@ -1,3 +1,4 @@
+/* Copyright (c) 2017-2021 Nozomu Takashima. */
 package com.epion_t3.csv.type;
 
 import lombok.AccessLevel;
