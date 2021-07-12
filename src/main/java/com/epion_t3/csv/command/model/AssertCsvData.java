@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * CSVデータのアサートコマンド.
+ *
+ * @since 0.1.1
  */
 @Getter
 @Setter
@@ -30,5 +32,8 @@ public class AssertCsvData extends Command {
 
     /** 比較を無視するインデックスリスト. */
     private List<IgnoreElement> ignores;
+
+    /** 比較を無視する設定ファイルパス. */
+    private String ignoresConfigPath;
 
 }

@@ -209,12 +209,19 @@ commands:
           - lang: ja_JP
             contents: "結果値を取得したFlowIDを指定。"
       - order: 8
-        name: ignoreIndexes
+        name: ignores
         required: false
         type: array
         summary:
           - lang: ja_JP
             contents: "対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。"
+      - order: 9
+        name: ignoresConfigPath
+        required: false
+        type: string
+        summary:
+          - lang: ja_JP
+            contents: "対象のCSV/TSV内でアサートの対象外としたいカラムの設定を記載した設定ファイルのパスを指定します。"
 #####################################
 # メッセージ定義
 #####################################
@@ -243,3 +250,15 @@ messages:
     message:
       - lang: ja_JP
         contents: "無視カラムの指定には、ヘッダ名称かインデックスの指定のいずれかが必須です."
+  - id: "com.epion_t3.csv.err.0007"
+    message:
+      - lang: ja_JP
+        contents: "比較無視カラムの設定ファイルは「yaml」「yml」「json」のいずれかで指定して下さい. 比較無視カラム設定ファイル : {0}"
+  - id: "com.epion_t3.csv.err.0008"
+    message:
+      - lang: ja_JP
+        contents: "比較無視カラムの設定ファイルが見つかりません. 比較無視カラム設定ファイル : {0}"
+  - id: "com.epion_t3.csv.err.0009"
+    message:
+      - lang: ja_JP
+        contents: "比較無視カラムの設定ファイルを正しく読み込めませんでした. 比較無視カラム設定ファイル : {0}"
