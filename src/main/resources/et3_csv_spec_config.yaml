@@ -214,14 +214,27 @@ commands:
         type: array
         summary:
           - lang: ja_JP
-            contents: "対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。"
+            contents: |
+              対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。
+              例：
+                ignores:
+                  - index: 1（headerNameかindexのいずれかが必須）
+                    headerName: ヘッダ名（現状は、「FileFormatConfiguration」の「firstRecordIsHeader」がTrueの場合のみ利用可能。）
       - order: 9
         name: ignoresConfigPath
         required: false
         type: string
         summary:
           - lang: ja_JP
-            contents: "対象のCSV/TSV内でアサートの対象外としたいカラムの設定を記載した設定ファイルのパスを指定します。"
+            contents:  |
+              対象のCSV/TSV内でアサートの対象外としたいカラムの設定を記載した設定ファイルのパスを指定します。
+              設定ファイルは、YAML or JSON で指定します。
+              例：[
+                {
+                  "index" : "インデックスの数値を指定。headerNameかindexのいずれかが必須",
+                  "headerName" : "ヘッダ名を指定。現状は、「FileFormatConfiguration」の「firstRecordIsHeader」がTrueの場合のみ利用可能。"
+                }
+              ]
 #####################################
 # メッセージ定義
 #####################################

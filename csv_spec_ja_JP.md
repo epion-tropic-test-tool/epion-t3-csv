@@ -63,7 +63,21 @@ commands :
     fileFormatConfigRef: ファイルフォーマット定義の参照ID # (1)
     expectedDataSetPath: 期待値CSV/TSVの相対パス # (2)
     actualFlowId: 結果値を取得したFlowのFlowIDを指定 # (3)
-    ignoreIndexes: 対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。
+    ignores: 対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。
+例：
+  ignores:
+    - index: 1（headerNameかindexのいずれかが必須）
+      headerName: ヘッダ名（現状は、「FileFormatConfiguration」の「firstRecordIsHeader」がTrueの場合のみ利用可能。）
+
+    ignoresConfigPath: 対象のCSV/TSV内でアサートの対象外としたいカラムの設定を記載した設定ファイルのパスを指定します。
+設定ファイルは、YAML or JSON で指定します。
+例：[
+  {
+    "index" : "インデックスの数値を指定。headerNameかindexのいずれかが必須",
+    "headerName" : "ヘッダ名を指定。現状は、「FileFormatConfiguration」の「firstRecordIsHeader」がTrueの場合のみ利用可能。"
+  }
+]
+
 
 ```
 
