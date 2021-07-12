@@ -239,3 +239,7 @@ messages:
     message:
       - lang: ja_JP
         contents: "指定されたエンコーディングは不正です. エンコーディング : {0}"
+  - id: "com.epion_t3.csv.err.0006"
+    message:
+      - lang: ja_JP
+        contents: "無視カラムの指定には、ヘッダ名称かインデックスの指定のいずれかが必須です."

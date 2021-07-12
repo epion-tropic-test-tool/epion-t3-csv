@@ -23,8 +23,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * CSVファイル同士のアサートコマンド.
@@ -113,14 +116,14 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
             var actualRecord = actualRecords.get(i);
             var assertResultRow = new AssertResultRow();
 
-            var hasHeaderMap = expected.getHeaderMap() == null;
-            var hasIgnoreIndexes = CollectionUtils.isNotEmpty(command.getIgnoreIndexes());
+            var hasHeaderMap = expected.getHeaderMap() != null;
+            var hasIgnores = CollectionUtils.isNotEmpty(command.getIgnores());
             if (hasHeaderMap) {
-                for (var j = 0; j < expectedRecord.size(); j++) {
-                    var targetIndex = j;
+                for (Map.Entry<String, Integer> entry : expected.getHeaderMap().entrySet()) {
+                    var targetIndex = entry.getValue();
                     var expectedValue = expectedRecord.get(targetIndex);
                     var actualValue = actualRecord.get(targetIndex);
-                    if (hasIgnoreIndexes && command.getIgnoreIndexes().contains(targetIndex)) {
+                    if (hasIgnores && isIgnoreColumn(command, entry)) {
                         assertResultRow.addColumns(AssertResultColumn.builder()
                                 .index(targetIndex)
                                 .expected(expectedValue)
@@ -139,11 +142,11 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
                     }
                 }
             } else {
-                for (Map.Entry<String, Integer> entry : expected.getHeaderMap().entrySet()) {
-                    var targetIndex = entry.getValue();
+                for (var j = 0; j < expectedRecord.size(); j++) {
+                    var targetIndex = j;
                     var expectedValue = expectedRecord.get(targetIndex);
                     var actualValue = actualRecord.get(targetIndex);
-                    if (hasIgnoreIndexes && command.getIgnoreIndexes().contains(entry.getValue())) {
+                    if (hasIgnores && isIgnoreColumn(command, targetIndex)) {
                         assertResultRow.addColumns(AssertResultColumn.builder()
                                 .index(targetIndex)
                                 .expected(expectedValue)
@@ -229,5 +232,41 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
         } catch (IOException e) {
             throw new SystemException(e, CsvMessages.CSV_ERR_0002, csvDataPath);
         }
+    }
+
+    /**
+     * 無視カラムかどうか判定します.
+     *
+     * @param command コマンド
+     * @param entry 列エントリー
+     * @return 判断結果
+     */
+    private boolean isIgnoreColumn(AssertCsvData command, Map.Entry<String, Integer> entry) {
+        return Optional.ofNullable(command.getIgnores())
+                .map(Collection::stream)
+                .orElseGet(Stream::empty)
+                .anyMatch(x -> {
+                    if (StringUtils.isNotEmpty(x.getHeaderName())) {
+                        return entry.getKey().equals(x.getHeaderName());
+                    } else if (x.getIndex() != null) {
+                        return entry.getValue().equals(x.getIndex());
+                    } else {
+                        throw new SystemException(CsvMessages.CSV_ERR_0006);
+                    }
+                });
+    }
+
+    /**
+     * 無視カラムかどうか判定します.
+     *
+     * @param command コマンド
+     * @param index インデックス
+     * @return 判断結果
+     */
+    private boolean isIgnoreColumn(AssertCsvData command, Integer index) {
+        return Optional.ofNullable(command.getIgnores())
+                .map(Collection::stream)
+                .orElseGet(Stream::empty)
+                .anyMatch(x -> x.getIndex() != null && index.equals(x.getIndex()));
     }
 }

@@ -23,7 +23,10 @@ public enum CsvMessages implements Messages {
     CSV_ERR_0003("com.epion_t3.csv.err.0003"),
 
     /** 指定されたエンコーディングは不正です. エンコーディング : {0} */
-    CSV_ERR_0005("com.epion_t3.csv.err.0005");
+    CSV_ERR_0005("com.epion_t3.csv.err.0005"),
+
+    /** 無視カラムの指定には、ヘッダ名称かインデックスの指定のいずれかが必須です. */
+    CSV_ERR_0006("com.epion_t3.csv.err.0006");
 
     /** メッセージコード */
     private final String messageCode;

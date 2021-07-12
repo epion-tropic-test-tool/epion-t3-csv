@@ -63,8 +63,9 @@ commands :
   fileFormatConfigRef : ファイルフォーマット定義の参照ID # (1)
   expectedDataSetPath : 期待値CSV/TSVの相対パス # (2)
   actualFlowId : 結果値を取得したFlowのFlowIDを指定 # (3)
-  ignoreIndexes : 対象のCSV/TSV内でアサートの対象外としたいカラムのIndex指定を行います。
-
+  ignores : 対象のCSV/TSV内でアサートの対象外としたいカラムのヘッダ名称またはIndex指定を行います。
+    - headerName: ヘッダ名（ヘッダが存在するCSVでのみ有効。どちらかが必須）
+      index: インデックス（どちらかが必須）
 ```
 
 1. ファイルフォーマットの設定を行っている &#96;Configuration&#96; の参照IDを指定します。

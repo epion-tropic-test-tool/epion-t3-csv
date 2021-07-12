@@ -3,6 +3,7 @@ package com.epion_t3.csv.command.model;
 
 import com.epion_t3.core.common.annotation.CommandDefinition;
 import com.epion_t3.core.common.bean.scenario.Command;
+import com.epion_t3.csv.bean.IgnoreElement;
 import com.epion_t3.csv.command.reporter.AssertCsvReporter;
 import com.epion_t3.csv.command.runner.AssertCsvDataRunner;
 import lombok.Getter;
@@ -28,6 +29,6 @@ public class AssertCsvData extends Command {
     private String actualFlowId;
 
     /** 比較を無視するインデックスリスト. */
-    private List<Integer> ignoreIndexes;
+    private List<IgnoreElement> ignores;
 
 }
