@@ -5,10 +5,13 @@ import com.epion_t3.core.command.bean.CommandResult;
 import com.epion_t3.core.command.runner.impl.AbstractCommandRunner;
 import com.epion_t3.core.common.type.AssertStatus;
 import com.epion_t3.core.common.type.CommandStatus;
+import com.epion_t3.core.common.util.JsonUtils;
+import com.epion_t3.core.common.util.YamlUtils;
 import com.epion_t3.core.exception.SystemException;
 import com.epion_t3.csv.bean.AssertCsvDataResult;
 import com.epion_t3.csv.bean.AssertResultColumn;
 import com.epion_t3.csv.bean.AssertResultRow;
+import com.epion_t3.csv.bean.IgnoreElement;
 import com.epion_t3.csv.command.model.AssertCsvData;
 import com.epion_t3.csv.configuration.model.FileFormatConfiguration;
 import com.epion_t3.csv.messages.CsvMessages;
@@ -24,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -117,13 +121,35 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
             var assertResultRow = new AssertResultRow();
 
             var hasHeaderMap = expected.getHeaderMap() != null;
-            var hasIgnores = CollectionUtils.isNotEmpty(command.getIgnores());
+
+            var ignores = (List<IgnoreElement>) null;
+            if (command.getIgnores() != null) {
+                ignores = command.getIgnores();
+            } else if (StringUtils.isNotEmpty(command.getIgnoresConfigPath())) {
+                var ignoresConfigPath = Paths.get(getScenarioDirectory(), command.getIgnoresConfigPath());
+                if (!Files.exists(ignoresConfigPath)) {
+                    throw new SystemException(CsvMessages.CSV_ERR_0008, ignoresConfigPath.toString());
+                }
+                if (StringUtils.endsWith(command.getIgnoresConfigPath(), "yaml")
+                        || StringUtils.endsWith(command.getIgnoresConfigPath(), "yml")) {
+                    ignores = YamlUtils.getInstance().unmarshal(ignoresConfigPath);
+                } else if (StringUtils.endsWith(command.getIgnoresConfigPath(), "json")) {
+                    ignores = JsonUtils.getInstance().unmarshal(ignoresConfigPath);
+                } else {
+                    throw new SystemException(CsvMessages.CSV_ERR_0007, command.getIgnoresConfigPath());
+                }
+            } else {
+                throw new SystemException(CsvMessages.CSV_ERR_0009, command.getIgnoresConfigPath());
+            }
+
+            var hasIgnores = CollectionUtils.isNotEmpty(ignores);
+
             if (hasHeaderMap) {
                 for (Map.Entry<String, Integer> entry : expected.getHeaderMap().entrySet()) {
                     var targetIndex = entry.getValue();
                     var expectedValue = expectedRecord.get(targetIndex);
                     var actualValue = actualRecord.get(targetIndex);
-                    if (hasIgnores && isIgnoreColumn(command, entry)) {
+                    if (hasIgnores && isIgnoreColumn(ignores, entry)) {
                         assertResultRow.addColumns(AssertResultColumn.builder()
                                 .index(targetIndex)
                                 .expected(expectedValue)
@@ -237,23 +263,20 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
     /**
      * 無視カラムかどうか判定します.
      *
-     * @param command コマンド
+     * @param ignores 無視カラムリスト
      * @param entry 列エントリー
      * @return 判断結果
      */
-    private boolean isIgnoreColumn(AssertCsvData command, Map.Entry<String, Integer> entry) {
-        return Optional.ofNullable(command.getIgnores())
-                .map(Collection::stream)
-                .orElseGet(Stream::empty)
-                .anyMatch(x -> {
-                    if (StringUtils.isNotEmpty(x.getHeaderName())) {
-                        return entry.getKey().equals(x.getHeaderName());
-                    } else if (x.getIndex() != null) {
-                        return entry.getValue().equals(x.getIndex());
-                    } else {
-                        throw new SystemException(CsvMessages.CSV_ERR_0006);
-                    }
-                });
+    private boolean isIgnoreColumn(List<IgnoreElement> ignores, Map.Entry<String, Integer> entry) {
+        return Optional.ofNullable(ignores).map(Collection::stream).orElseGet(Stream::empty).anyMatch(x -> {
+            if (StringUtils.isNotEmpty(x.getHeaderName())) {
+                return entry.getKey().equals(x.getHeaderName());
+            } else if (x.getIndex() != null) {
+                return entry.getValue().equals(x.getIndex());
+            } else {
+                throw new SystemException(CsvMessages.CSV_ERR_0006);
+            }
+        });
     }
 
     /**
