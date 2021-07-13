@@ -5,16 +5,19 @@ import com.epion_t3.core.command.bean.CommandResult;
 import com.epion_t3.core.command.runner.impl.AbstractCommandRunner;
 import com.epion_t3.core.common.type.AssertStatus;
 import com.epion_t3.core.common.type.CommandStatus;
-import com.epion_t3.core.common.util.JsonUtils;
-import com.epion_t3.core.common.util.YamlUtils;
 import com.epion_t3.core.exception.SystemException;
 import com.epion_t3.csv.bean.AssertCsvDataResult;
 import com.epion_t3.csv.bean.AssertResultColumn;
 import com.epion_t3.csv.bean.AssertResultRow;
 import com.epion_t3.csv.bean.IgnoreElement;
+import com.epion_t3.csv.bean.Ignores;
 import com.epion_t3.csv.command.model.AssertCsvData;
 import com.epion_t3.csv.configuration.model.FileFormatConfiguration;
 import com.epion_t3.csv.messages.CsvMessages;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -37,6 +40,28 @@ import java.util.stream.Stream;
  * CSVファイル同士のアサートコマンド.
  */
 public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
+
+    /**
+     * YAMLFactory.
+     */
+    private static final YAMLFactory yamlFactory = new YAMLFactory();
+
+    /**
+     * YAML解析用ObjectMapper.
+     */
+    private static final ObjectMapper objectMapper4Yaml = new ObjectMapper(yamlFactory);
+
+    /**
+     * JSON解析用ObjectMapper.
+     */
+    private static final ObjectMapper objectMapper4Json = new ObjectMapper();
+
+    static {
+        objectMapper4Yaml.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper4Yaml.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper4Json.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper4Json.configure(SerializationFeature.INDENT_OUTPUT, true);
+    }
 
     /**
      * {@inheritDoc}
@@ -122,34 +147,36 @@ public class AssertCsvDataRunner extends AbstractCommandRunner<AssertCsvData> {
 
             var hasHeaderMap = expected.getHeaderMap() != null;
 
-            var ignores = (List<IgnoreElement>) null;
+            List<IgnoreElement> ignoreElements = (List<IgnoreElement>) null;
             if (command.getIgnores() != null) {
-                ignores = command.getIgnores();
+                ignoreElements = command.getIgnores();
             } else if (StringUtils.isNotEmpty(command.getIgnoresConfigPath())) {
+                var ignores = (Ignores) null;
                 var ignoresConfigPath = Paths.get(getScenarioDirectory(), command.getIgnoresConfigPath());
                 if (!Files.exists(ignoresConfigPath)) {
                     throw new SystemException(CsvMessages.CSV_ERR_0008, ignoresConfigPath.toString());
                 }
                 if (StringUtils.endsWith(command.getIgnoresConfigPath(), "yaml")
                         || StringUtils.endsWith(command.getIgnoresConfigPath(), "yml")) {
-                    ignores = YamlUtils.getInstance().unmarshal(ignoresConfigPath);
+                    ignores = objectMapper4Yaml.readValue(ignoresConfigPath.toFile(), Ignores.class);
                 } else if (StringUtils.endsWith(command.getIgnoresConfigPath(), "json")) {
-                    ignores = JsonUtils.getInstance().unmarshal(ignoresConfigPath);
+                    ignores = objectMapper4Json.readValue(ignoresConfigPath.toFile(), Ignores.class);
                 } else {
                     throw new SystemException(CsvMessages.CSV_ERR_0007, command.getIgnoresConfigPath());
                 }
+                ignoreElements = ignores.getIgnores();
             } else {
                 throw new SystemException(CsvMessages.CSV_ERR_0009, command.getIgnoresConfigPath());
             }
 
-            var hasIgnores = CollectionUtils.isNotEmpty(ignores);
+            var hasIgnores = CollectionUtils.isNotEmpty(ignoreElements);
 
             if (hasHeaderMap) {
                 for (Map.Entry<String, Integer> entry : expected.getHeaderMap().entrySet()) {
                     var targetIndex = entry.getValue();
                     var expectedValue = expectedRecord.get(targetIndex);
                     var actualValue = actualRecord.get(targetIndex);
-                    if (hasIgnores && isIgnoreColumn(ignores, entry)) {
+                    if (hasIgnores && isIgnoreColumn(ignoreElements, entry)) {
                         assertResultRow.addColumns(AssertResultColumn.builder()
                                 .index(targetIndex)
                                 .expected(expectedValue)
