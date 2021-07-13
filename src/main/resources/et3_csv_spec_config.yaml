@@ -229,12 +229,12 @@ commands:
             contents:  |
               対象のCSV/TSV内でアサートの対象外としたいカラムの設定を記載した設定ファイルのパスを指定します。
               設定ファイルは、YAML or JSON で指定します。
-              例：[
+              例：{ "ignores" : [
                 {
                   "index" : "インデックスの数値を指定。headerNameかindexのいずれかが必須",
                   "headerName" : "ヘッダ名を指定。現状は、「FileFormatConfiguration」の「firstRecordIsHeader」がTrueの場合のみ利用可能。"
                 }
-              ]
+              ]}
 #####################################
 # メッセージ定義
 #####################################
